@@ -1,5 +1,4 @@
-﻿using Cuvix.State;
-using Zenject;
+﻿using Zenject;
 
 public class StateInstaller : MonoInstaller
 {
