@@ -1,9 +1,12 @@
-﻿public interface IStateMachine
+﻿namespace Misokatsu
 {
-    string Id { get; }
+    public interface IStateMachine
+    {
+        string Id { get; }
 
-    IState CurrentState { get; }
+        IState CurrentState { get; }
 
-    void ChangeTo(IState nextState);
-    void ChangeToPrevious();
+        void ChangeTo(IState nextState);
+        void ChangeToPrevious();
+    }
 }

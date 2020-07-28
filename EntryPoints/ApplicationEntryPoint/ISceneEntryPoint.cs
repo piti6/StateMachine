@@ -1,3 +1,6 @@
-﻿public interface ISceneEntryPoint : IEntryPoint
+﻿namespace Misokatsu
 {
+    public interface ISceneEntryPoint : IEntryPoint
+    {
+    }
 }

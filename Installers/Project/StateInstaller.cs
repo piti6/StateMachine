@@ -1,12 +1,15 @@
 ﻿using Zenject;
 
-public class StateInstaller : MonoInstaller
+namespace Misokatsu
 {
-    public override void InstallBindings()
+    public class StateInstaller : MonoInstaller
     {
-        Container.Bind<IRootStateMachine>().To<RootStateMachine>()
-            .AsSingle();
+        public override void InstallBindings()
+        {
+            Container.Bind<IRootStateMachine>().To<RootStateMachine>()
+                .AsSingle();
 
-        Container.BindFactory<string, SceneState, SceneState.Factory>();
+            Container.BindFactory<string, SceneState, SceneState.Factory>();
+        }
     }
 }

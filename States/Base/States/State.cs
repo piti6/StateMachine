@@ -1,48 +1,51 @@
 ﻿using System.Collections.Generic;
 using UniRx.Async;
 
-public abstract class State : IState
+namespace Misokatsu
 {
-    public static readonly IState Empty = new EmptyState();
-
-    bool IState.IsValidState => !(this is EmptyState);
-    IReadOnlyDictionary<string, IStateMachine> IState.SubStateMachines => _subStateMachines;
-
-    private IState IState => this as IState;
-
-    private readonly Dictionary<string, IStateMachine> _subStateMachines = new Dictionary<string, IStateMachine>();
-
-    async UniTask IState.EnterAsync()
+    public abstract class State : IState
     {
-        await OnEnter();
+        public static readonly IState Empty = new EmptyState();
 
-        if (IState.IsValidState)
-        {
-            foreach (var subStateMachine in _subStateMachines.Values)
-            {
-                await subStateMachine.CurrentState.EnterAsync();
-            }
-        }
-    }
+        bool IState.IsValidState => !(this is EmptyState);
+        IReadOnlyDictionary<string, IStateMachine> IState.SubStateMachines => _subStateMachines;
 
-    async UniTask IState.ExitAsync()
-    {
-        if (IState.IsValidState)
+        private IState IState => this;
+
+        private readonly Dictionary<string, IStateMachine> _subStateMachines = new Dictionary<string, IStateMachine>();
+
+        async UniTask IState.EnterAsync()
         {
-            foreach (var subStateMachine in _subStateMachines.Values)
+            await OnEnter();
+
+            if (IState.IsValidState)
             {
-                await subStateMachine.CurrentState.ExitAsync();
+                foreach (var subStateMachine in _subStateMachines.Values)
+                {
+                    await subStateMachine.CurrentState.EnterAsync();
+                }
             }
         }
 
-        await OnExit();
-    }
+        async UniTask IState.ExitAsync()
+        {
+            if (IState.IsValidState)
+            {
+                foreach (var subStateMachine in _subStateMachines.Values)
+                {
+                    await subStateMachine.CurrentState.ExitAsync();
+                }
+            }
 
-    void IState.AddSubStateMachine(string id, IState initialState)
-    {
-        _subStateMachines.Add(id, new StateMachine(id, initialState));
-    }
+            await OnExit();
+        }
 
-    protected abstract UniTask OnEnter();
-    protected abstract UniTask OnExit();
+        void IState.AddSubStateMachine(string id, IState initialState)
+        {
+            _subStateMachines.Add(id, new StateMachine(id, initialState));
+        }
+
+        protected abstract UniTask OnEnter();
+        protected abstract UniTask OnExit();
+    }
 }

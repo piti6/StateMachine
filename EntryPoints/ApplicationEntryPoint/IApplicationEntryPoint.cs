@@ -1,3 +1,6 @@
-﻿public interface IApplicationEntryPoint : IEntryPoint
+﻿namespace Misokatsu
 {
+    public interface IApplicationEntryPoint : IEntryPoint
+    {
+    }
 }

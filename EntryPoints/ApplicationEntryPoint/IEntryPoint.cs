@@ -1,5 +1,8 @@
 ﻿using Zenject;
 
-public interface IEntryPoint : IInitializable
+namespace Misokatsu
 {
+    public interface IEntryPoint : IInitializable
+    {
+    }
 }

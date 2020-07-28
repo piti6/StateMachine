@@ -1,10 +1,13 @@
 ﻿using Zenject;
 
-public class ApplicationEntryPointInstaller : MonoInstaller
+namespace Misokatsu
 {
-    public override void InstallBindings()
+    public class ApplicationEntryPointInstaller : MonoInstaller
     {
-        Container.BindInterfacesAndSelfTo<ApplicationEntryPoint>()
-            .AsSingle();
+        public override void InstallBindings()
+        {
+            Container.BindInterfacesAndSelfTo<ApplicationEntryPoint>()
+                .AsSingle();
+        }
     }
 }

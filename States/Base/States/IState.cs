@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
 using UniRx.Async;
 
-public interface IState
+namespace Misokatsu
 {
-    bool IsValidState { get; }
+    public interface IState
+    {
+        bool IsValidState { get; }
 
-    IReadOnlyDictionary<string, IStateMachine> SubStateMachines { get; }
+        IReadOnlyDictionary<string, IStateMachine> SubStateMachines { get; }
 
-    void AddSubStateMachine(string id, IState initialState);
+        void AddSubStateMachine(string id, IState initialState);
 
-    UniTask EnterAsync();
-    UniTask ExitAsync();
+        UniTask EnterAsync();
+        UniTask ExitAsync();
+    }
 }

@@ -1,4 +1,5 @@
-﻿using Zenject;
+﻿using Misokatsu;
+using Zenject;
 
 public static class DIContainerExtensions
 {

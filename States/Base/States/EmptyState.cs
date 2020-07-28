@@ -1,14 +1,17 @@
 ﻿using UniRx.Async;
 
-public class EmptyState : State
+namespace Misokatsu
 {
-    protected override UniTask OnEnter()
+    public class EmptyState : State
     {
-        return UniTask.CompletedTask;
-    }
+        protected override UniTask OnEnter()
+        {
+            return UniTask.CompletedTask;
+        }
 
-    protected override UniTask OnExit()
-    {
-        return UniTask.CompletedTask;
+        protected override UniTask OnExit()
+        {
+            return UniTask.CompletedTask;
+        }
     }
 }
