@@ -4,7 +4,8 @@
     "references": [
         "UniRx.Async",
         "UniRx",
-        "Zenject"
+        "Zenject",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
