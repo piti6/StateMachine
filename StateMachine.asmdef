@@ -5,7 +5,8 @@
         "UniRx.Async",
         "UniRx",
         "Zenject",
-        "UniTask"
+        "UniTask",
+        "VContainer"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
