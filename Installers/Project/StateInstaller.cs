@@ -1,19 +1,15 @@
-﻿using VContainer;
-using VContainer.Unity;
+﻿using Zenject;
 
 namespace Misokatsu
 {
-    public class StateInstaller : IInstaller
+    public class StateInstaller : MonoInstaller
     {
-        void IInstaller.Install(IContainerBuilder builder)
+        public override void InstallBindings()
         {
-            builder.RegisterContainer();
-            builder.Register<RootStateMachine>(Lifetime.Singleton)
-                .AsImplementedInterfaces()
-                .AsSelf();
+            Container.Bind<IRootStateMachine>().To<RootStateMachine>()
+                .AsSingle();
 
-            builder.RegisterFactory<string, SceneState>(container => sceneName => container.CreateInstance<SceneState>(sceneName.AsTypedParameter()), Lifetime.Singleton);
-            builder.Register<DynamicPrefabAsyncResourceFactory>(Lifetime.Singleton);
+            Container.BindFactory<string, SceneState, SceneState.Factory>();
         }
     }
 }
