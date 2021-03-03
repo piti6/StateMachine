@@ -1,7 +1,7 @@
 ﻿using UniRx;
 using Cysharp.Threading.Tasks;
 using UnityEngine.SceneManagement;
-using VContainer;
+using Zenject;
 
 namespace Misokatsu
 {
@@ -21,6 +21,10 @@ namespace Misokatsu
         protected override async UniTask OnExit()
         {
             await SceneManager.UnloadSceneAsync(_sceneName);
+        }
+
+        public class Factory : PlaceholderFactory<string, SceneState>
+        {
         }
     }
 }
