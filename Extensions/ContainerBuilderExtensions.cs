@@ -5,17 +5,25 @@ using VContainer.Unity;
 
 public static class ContainerBuilderExtensions
 {
-    public static void BuildController<TController, TInstaller>(this IContainerBuilder builder)
+    public static void BuildController<TController>(this IContainerBuilder builder, params IInstaller[] installers)
             where TController : ControllerBase, new()
-            where TInstaller : IInstaller, new()
     {
         builder.RegisterFactory(() =>
         {
-            var installer = new TInstaller();
             var lifetimeScope = (LifetimeScope)builder.ApplicationOrigin;
 
-            var childLifetimeScope = lifetimeScope.CreateChild(installer);
             var controller = new TController();
+
+            var childLifetimeScope = lifetimeScope.CreateChild(x =>
+            {
+                x.RegisterInstance<TController>(controller).AsImplementedInterfaces();
+
+                foreach (var installer in installers)
+                {
+                    installer.Install(x);
+                }
+            });
+
             Action onContollerDispose = default;
             onContollerDispose = () =>
             {

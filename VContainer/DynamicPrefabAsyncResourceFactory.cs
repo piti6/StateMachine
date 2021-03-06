@@ -1,11 +1,12 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 
 public class DynamicPrefabAsyncResourceFactory
 {
     [Inject]
-    private readonly Container _container = default;
+    private readonly LifetimeScope _scope = default;
 
     public async UniTask<T> CreateAsync<T>(string prefabPath) where T : Component
     {
@@ -24,7 +25,7 @@ public class DynamicPrefabAsyncResourceFactory
         Debug.Assert(prefab, $"Could not find prefab from path: {prefabPath}");
 
         var instance = Object.Instantiate(prefab) as GameObject;
-        _container.Inject(instance);
+        _scope.Container.Inject(instance);
 
         return instance;
     }
