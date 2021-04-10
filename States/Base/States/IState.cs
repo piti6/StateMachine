@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Misokatsu
 {
@@ -7,9 +7,11 @@ namespace Misokatsu
     {
         bool IsValidState { get; }
 
+        IStateMachine StateMachine { get; }
         IReadOnlyDictionary<string, IStateMachine> SubStateMachines { get; }
 
         void AddSubStateMachine(string id, IState initialState);
+        void AddStateMachine(IStateMachine stateMachine);
 
         UniTask EnterAsync();
         UniTask ExitAsync();

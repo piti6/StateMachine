@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UniRx;
-using Cysharp.Threading.Tasks;
 
 namespace Misokatsu
 {
@@ -66,6 +66,7 @@ namespace Misokatsu
                 _previousStates.Push(currentState);
             }
 
+            nextState.AddStateMachine(this);
             _currentState = nextState;
 
             await nextState.EnterAsync();
