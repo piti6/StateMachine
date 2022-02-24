@@ -7,7 +7,7 @@ namespace Misokatsu
     {
         void IInstaller.Install(IContainerBuilder builder)
         {
-            builder.RegisterContainer();
+            EntryPointsBuilder.EnsureDispatcherRegistered(builder);
             builder.Register<RootStateMachine>(Lifetime.Singleton)
                 .AsImplementedInterfaces()
                 .AsSelf();

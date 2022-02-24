@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using UniRx;
 
 namespace Misokatsu
 {
@@ -7,6 +8,13 @@ namespace Misokatsu
     {
         public RootStateMachine() : base("Root")
         {
+            MessageBroker.Default.Receive<ChangeStateMessage>()
+                .Subscribe(x => (this as IRootStateMachine).ChangeTo(x.StateMachineId, x.State))
+                .AddTo(_disposables);
+
+            MessageBroker.Default.Receive<ChangeToPreviousStateMessage>()
+                .Subscribe(x => (this as IRootStateMachine).ChangeToPrevious(x.StateMachineId))
+                .AddTo(_disposables);
         }
 
         void IRootStateMachine.ChangeTo(string targetId, IState nextState)

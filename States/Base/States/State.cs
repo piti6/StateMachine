@@ -42,7 +42,7 @@ namespace Misokatsu
             await OnExit();
         }
 
-        void IState.AddSubStateMachine(string id, IState initialState)
+        public void AddSubStateMachine(string id, IState initialState)
         {
             _subStateMachines.Add(id, new StateMachine(id, initialState));
         }

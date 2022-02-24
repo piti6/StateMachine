@@ -15,7 +15,7 @@ namespace Misokatsu
         private readonly ISubject<(IState State, bool NeedStackCurrentToPrevious)> _stateChangeRequested = new ReplaySubject<(IState State, bool NeedStackCurrentToPrevious)>(1);
         private readonly Stack<IState> _previousStates = new Stack<IState>();
 
-        private readonly CompositeDisposable _disposables = new CompositeDisposable();
+        protected readonly CompositeDisposable _disposables = new CompositeDisposable();
 
         private IState _currentState = State.Empty;
         IState IStateMachine.CurrentState => _currentState;
