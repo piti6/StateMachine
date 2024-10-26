@@ -1,5 +1,5 @@
-﻿using System;
-using UniRx;
+﻿using R3;
+using System;
 
 namespace Misokatsu
 {
@@ -7,11 +7,11 @@ namespace Misokatsu
     {
         public event Action OnDispose = EmptyAction;
 
-        private readonly static Action EmptyAction = () => { };
+        private static readonly Action EmptyAction = () => { };
 
         protected readonly CompositeDisposable _disposables = new CompositeDisposable();
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _disposables.Dispose();
 

@@ -1,8 +1,9 @@
 ﻿using Cysharp.Threading.Tasks;
+using R3;
+using R3.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UniRx;
 
 namespace Misokatsu
 {
@@ -12,10 +13,10 @@ namespace Misokatsu
 
         private readonly string _id;
 
-        private readonly ISubject<(IState State, bool NeedStackCurrentToPrevious)> _stateChangeRequested = new ReplaySubject<(IState State, bool NeedStackCurrentToPrevious)>(1);
+        private readonly ReplaySubject<(IState State, bool NeedStackCurrentToPrevious)> _stateChangeRequested = new ReplaySubject<(IState State, bool NeedStackCurrentToPrevious)>(1);
         private readonly Stack<IState> _previousStates = new Stack<IState>();
 
-        private readonly CompositeDisposable _disposables = new CompositeDisposable();
+        protected readonly CompositeDisposable _disposables = new CompositeDisposable();
 
         private IState _currentState = State.Empty;
         IState IStateMachine.CurrentState => _currentState;
@@ -26,8 +27,8 @@ namespace Misokatsu
             _id = id;
 
             _stateChangeRequested
-                .StartWith((State: initialState, NeedStackCurrentToPrevious: true))
-                .Select(x => ChangeStateInternalAsync(x.State, x.NeedStackCurrentToPrevious).ToObservable())
+                .Prepend((State: initialState, NeedStackCurrentToPrevious: true))
+                .Select(x => ChangeStateInternalAsync(x.State, x.NeedStackCurrentToPrevious).ToObservable().ToObservable())
                 .Concat()
                 .Subscribe()
                 .AddTo(_disposables);

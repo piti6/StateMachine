@@ -2,11 +2,11 @@
     "name": "StateMachine",
     "rootNamespace": "",
     "references": [
-        "UniRx.Async",
-        "UniRx",
-        "Zenject",
         "UniTask",
-        "VContainer"
+        "VContainer",
+        "MessagePipe",
+        "MessagePipe.VContainer",
+        "R3.Unity"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
