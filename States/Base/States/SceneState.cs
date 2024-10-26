@@ -1,5 +1,4 @@
-﻿using UniRx;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using UnityEngine.SceneManagement;
 using VContainer;
 
