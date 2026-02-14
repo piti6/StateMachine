@@ -1,0 +1,18 @@
+using VContainer;
+using VContainer.Unity;
+
+namespace {{Namespace}}
+{
+    public partial class {{FeatureName}}Installer : IInstaller
+    {
+        void IInstaller.Install(IContainerBuilder builder)
+        {
+            builder.RegisterAsImplementedInterfacesAndSelf<{{FeatureName}}Presenter>(Lifetime.Scoped);
+            builder.RegisterAsImplementedInterfacesAndSelf<{{FeatureName}}Controller>(Lifetime.Scoped);
+
+            InstallInternal();
+        }
+
+        private partial void InstallInternal();
+    }
+}
