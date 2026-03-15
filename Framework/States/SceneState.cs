@@ -5,7 +5,7 @@ using VContainer;
 
 namespace Misokatsu.Framework
 {
-    public class SceneState : State
+    public class SceneState : State<SceneState>
     {
         [Inject]
         private readonly string _sceneName = default;

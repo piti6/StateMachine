@@ -11,11 +11,15 @@ namespace Misokatsu.Framework
 
         protected readonly CompositeDisposable _disposables = new CompositeDisposable();
 
+        private bool _disposed;
         public virtual void Dispose()
         {
+            if (_disposed) return;
+            
             _disposables.Dispose();
 
             OnDispose.Invoke();
+            _disposed = true;
         }
     }
 }

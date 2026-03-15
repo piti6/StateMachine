@@ -2,7 +2,7 @@ using VContainer;
 
 namespace Misokatsu.Framework
 {
-    public sealed class ObjectResolverFactory<T> : IFactory<T>
+    public class ObjectResolverFactory<T> : IFactory<T>
     {
         private readonly IObjectResolver _resolver;
 
@@ -17,7 +17,7 @@ namespace Misokatsu.Framework
         }
     }
 
-    public sealed class ObjectResolverFactory<TParam, TResult> : IFactory<TParam, TResult>
+    public class ObjectResolverFactory<TParam, TResult> : IFactory<TParam, TResult>
     {
         private readonly IObjectResolver _resolver;
 

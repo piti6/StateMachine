@@ -1,9 +1,9 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using R3;
-using R3.Collections;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
+using UnityEngine;
 
 namespace Misokatsu.Framework
 {
@@ -13,8 +13,9 @@ namespace Misokatsu.Framework
 
         private readonly string _id;
 
-        private readonly ReplaySubject<(IState State, bool NeedStackCurrentToPrevious)> _stateChangeRequested = new ReplaySubject<(IState State, bool NeedStackCurrentToPrevious)>(1);
         private readonly Stack<IState> _previousStates = new Stack<IState>();
+        private readonly Channel<(IState State, bool NeedStackCurrentToPrevious)> _stateChangeChannel = Channel.CreateSingleConsumerUnbounded<(IState State, bool NeedStackCurrentToPrevious)>();
+        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
         protected readonly CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -25,13 +26,8 @@ namespace Misokatsu.Framework
         public StateMachine(string id, IState initialState)
         {
             _id = id;
-
-            _stateChangeRequested
-                .Prepend((State: initialState, NeedStackCurrentToPrevious: true))
-                .Select(x => ChangeStateInternalAsync(x.State, x.NeedStackCurrentToPrevious).ToObservable().ToObservable())
-                .Concat()
-                .Subscribe()
-                .AddTo(_disposables);
+            _stateChangeChannel.Writer.TryWrite((initialState, true));
+            ConsumeStateChangesAsync(_cts.Token).Forget();
         }
 
         void IStateMachine.ChangeTo(IState nextState)
@@ -41,7 +37,7 @@ namespace Misokatsu.Framework
 
         void IStateMachine.ChangeToPrevious()
         {
-            if (_previousStates.Any())
+            if (_previousStates.Count > 0)
             {
                 ChangeState(_previousStates.Pop(), false);
             }
@@ -53,7 +49,7 @@ namespace Misokatsu.Framework
 
         private void ChangeState(IState nextState, bool needStackCurrentToPrevious)
         {
-            _stateChangeRequested.OnNext((nextState, needStackCurrentToPrevious));
+            _stateChangeChannel.Writer.TryWrite((nextState, needStackCurrentToPrevious));
         }
 
         private async UniTask ChangeStateInternalAsync(IState nextState, bool needStackCurrentToPrevious)
@@ -73,6 +69,46 @@ namespace Misokatsu.Framework
             await nextState.EnterAsync();
         }
 
-        void IDisposable.Dispose() => _disposables.Dispose();
+        private async UniTaskVoid ConsumeStateChangesAsync(CancellationToken ct)
+        {
+            await foreach (var (state, needStack) in _stateChangeChannel.Reader.ReadAllAsync(ct))
+            {
+                try
+                {
+                    await ChangeStateInternalAsync(state, needStack);
+                }
+                catch (Exception exception)
+                {
+                    FrameworkExceptionHandler.Handle(exception);
+                }
+            }
+        }
+
+        void IDisposable.Dispose()
+        {
+            _cts.Cancel();
+            _cts.Dispose();
+            _disposables.Dispose();
+        }
+    }
+
+    public static class FrameworkExceptionHandler
+    {
+        public static Action<Exception> Handler { get; set; } = Debug.LogException;
+
+        public static void Handle(Exception exception)
+        {
+            Handler?.Invoke(exception);
+        }
+    }
+
+    internal static class FrameworkDomainReloadGuard
+    {
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            FrameworkExceptionHandler.Handler = Debug.LogException;
+            State.ResetStatics();
+        }
     }
 }

@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using R3;
+using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
@@ -9,13 +11,12 @@ namespace Misokatsu.Framework
     public sealed class EntryPointFactory<TEntryPoint, TInstaller, TView> : IAsyncFactory<TEntryPoint>
         where TEntryPoint : EntryPointBase, new()
         where TInstaller : IInstaller, new()
+        where TView : MonoBehaviour
     {
-        private readonly IContainerBuilder _builder;
         private readonly IObjectResolver _resolver;
 
-        public EntryPointFactory(IContainerBuilder builder, IObjectResolver resolver)
+        public EntryPointFactory(IObjectResolver resolver)
         {
-            _builder = builder;
             _resolver = resolver;
         }
 
@@ -23,13 +24,14 @@ namespace Misokatsu.Framework
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var lifetimeScope = (LifetimeScope)_builder.ApplicationOrigin;
             var entryPoint = new TEntryPoint();
-            
-            var viewFactory = _resolver.Resolve<IAsyncFactory<TView>>();
-            var view = await viewFactory.CreateAsync(cancellationToken);
+            var holder = new GameObject($"{typeof(TEntryPoint).Name}Holder");
+            entryPoint.AddTo(holder);
 
-            var childLifetimeScope = lifetimeScope.CreateChild(x =>
+            var viewFactory = _resolver.Resolve<ViewFactory<TView>>();
+            var view = await viewFactory.CreateAsync(cancellationToken);
+            view.transform.SetParent(holder.transform);
+            var childScope = _resolver.CreateScope(x =>
             {
                 EntryPointsBuilder.EnsureDispatcherRegistered(x);
                 x.RegisterInstance(entryPoint).AsImplementedInterfaces();
@@ -37,20 +39,17 @@ namespace Misokatsu.Framework
                 new TInstaller().Install(x);
             });
 
-            childLifetimeScope.name = typeof(TEntryPoint).Name;
-
-            Action onControllerDispose = null;
-            onControllerDispose = () =>
+            Action onEntryPointDispose = null;
+            onEntryPointDispose = () =>
             {
-                entryPoint.OnDispose -= onControllerDispose;
-                childLifetimeScope.Dispose();
+                entryPoint.OnDispose -= onEntryPointDispose;
+                childScope.Dispose();
             };
 
-            entryPoint.OnDispose += onControllerDispose;
-            childLifetimeScope.Container.Inject(entryPoint);
+            entryPoint.OnDispose += onEntryPointDispose;
+            childScope.Inject(entryPoint);
 
             return entryPoint;
         }
-
     }
 }

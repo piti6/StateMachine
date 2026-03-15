@@ -1,4 +1,4 @@
-﻿using MessagePipe;
+using MessagePipe;
 using System.Collections.Generic;
 using System.Linq;
 using R3;
@@ -8,16 +8,45 @@ namespace Misokatsu.Framework
 {
     public class RootStateMachine : StateMachine, IRootStateMachine, IStartable
     {
-        public RootStateMachine() : base("Root") { }
-        
+        private readonly ISubscriber<ChangeStateMessage> _changeStateSubscriber;
+        private readonly ISubscriber<ChangeToPreviousStateMessage> _changeToPreviousSubscriber;
+
+        public RootStateMachine(
+            ISubscriber<ChangeStateMessage> changeStateSubscriber,
+            ISubscriber<ChangeToPreviousStateMessage> changeToPreviousSubscriber) : base("Root")
+        {
+            _changeStateSubscriber = changeStateSubscriber;
+            _changeToPreviousSubscriber = changeToPreviousSubscriber;
+        }
+
         void IStartable.Start()
         {
-            GlobalMessagePipe.GetSubscriber<ChangeStateMessage>()
-                .Subscribe(x => (this as IRootStateMachine).ChangeTo(x.StateMachineId, x.State))
+            _changeStateSubscriber
+                .Subscribe(x =>
+                {
+                    try
+                    {
+                        (this as IRootStateMachine).ChangeTo(x.StateMachineId, x.State);
+                    }
+                    catch (System.Exception exception)
+                    {
+                        FrameworkExceptionHandler.Handle(exception);
+                    }
+                })
                 .AddTo(_disposables);
 
-            GlobalMessagePipe.GetSubscriber<ChangeToPreviousStateMessage>()
-                .Subscribe(x => (this as IRootStateMachine).ChangeToPrevious(x.StateMachineId))
+            _changeToPreviousSubscriber
+                .Subscribe(x =>
+                {
+                    try
+                    {
+                        (this as IRootStateMachine).ChangeToPrevious(x.StateMachineId);
+                    }
+                    catch (System.Exception exception)
+                    {
+                        FrameworkExceptionHandler.Handle(exception);
+                    }
+                })
                 .AddTo(_disposables);
         }
 

@@ -1,11 +1,17 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace Misokatsu.Framework
 {
+    public abstract class State<T> : State where T : State<T>
+    {
+        
+    }
+    
     public abstract class State : IState
     {
-        public static readonly IState Empty = new EmptyState();
+        private static IState _empty = new EmptyState();
+        public static IState Empty => _empty;
 
         public IStateMachine StateMachine { get; private set; }
 
@@ -53,6 +59,11 @@ namespace Misokatsu.Framework
         void IState.AddStateMachine(IStateMachine stateMachine)
         {
             StateMachine = stateMachine;
+        }
+
+        internal static void ResetStatics()
+        {
+            _empty = new EmptyState();
         }
     }
 }
